@@ -1,0 +1,78 @@
+USE Firma
+GO
+CREATE VIEW vAngajati AS
+SELECT A.IdAngajat, A.Nume, A.Prenume,
+D.Denumire AS Departament,
+F.Denumire AS Functie, F.Salariu, A.
+DataNasterii, A.DataAngajarii
+FROM Angajati A, Departamente D, Functii F
+WHERE A.IdDept=D.IdDept AND A.IdFunctie=F.IdFunctie
+GO
+SELECT * FROM vAngajati
+
+SELECT Nume, Prenume
+FROM vAngajati
+WHERE Departament = 'productie'
+and nume like '%n1%' 
+  
+
+--Care sunt angajații dintr-un anumit departament (dat prin denumire) ordonați după salariu crescător/descrescător ?
+SELECT Nume, Prenume
+FROM vAngajati
+WHERE Departament = 'PROIECTARE'
+ORDER BY salariu desc
+
+SELECT Nume, Prenume
+FROM vAngajati
+WHERE Departament = 'PROIECTARE'
+ORDER BY salariu asc
+
+--Câți angajați sunt într-un anumit departament dat prin denumire ?
+select count(idAngajat) from vAngajati where departament='proiectare'
+
+--Care este suma salariilor angajaților din companie ?
+select sum(salariu) from vAngajati
+
+--Care este media salariilor pe un departament specificat prin nume ?
+select avg(salariu)
+from vAngajati
+where Departament='proiectare'
+
+--Care sunt mediile salariilor angajaților grupate pe funcții ?
+select Functie, avg(salariu)
+from vAngajati
+group by functie
+
+SELECT * FROM vAngajati
+
+--Care este cel mai mic/mare salariu din companie ?
+select min(salariu) from vAngajati
+select max(salariu) from vAngajati
+
+--Care este cel mai mic/mare salariu dintr-un departament specificat ?
+select min(salariu) from vAngajati where Departament='Proiectare'
+select max(salariu) from vAngajati where Departament='Proiectare'
+
+--Care sunt cele mai mici și cele mai mari salarii pe departamente ?
+select departament,min(salariu), max(salariu) from vAngajati group by Departament
+
+--Câți angajați sunt în fiecare departament ?
+select DEPARTAMENT, count(idAngajat) from vAngajati group by departament
+
+--Care este suma salariilor angajaților din fiecare departament ?
+select DEPARTAMENT, sum(salariu) from vAngajati group by Departament
+
+--Listați angajații, grupati pe departamente și vechimi (rotunjite la an) ?
+select departament, nume, prenume, datediff(year, DataAngajarii,getdate()) from vAngajati group by Departament , nume, prenume, DataAngajarii
+
+--Care sunt angajații, grupați pe funcții, ce au o vechime mai mare de 10 ani ?
+select Functie, nume, prenume from vAngajati where datediff(year, DataAngajarii,getdate())>10 group by functie , nume, prenume
+
+--Care sunt angajații, grupați pe departamente, ce au vârsta de minim 30 ani ?
+select DEPARTAMENT, nume, prenume from vAngajati where datediff(year, datanasterii, getdate())>30 group by Departament , nume, prenume
+
+--Care sunt departamentele care au media salariilor mai mare decat 3000 ?
+select departament,avg(salariu) as 'Medie salariu' from vAngajati group by Departament  having avg(salariu)>3000 
+
+
+SELECT * FROM vAngajati

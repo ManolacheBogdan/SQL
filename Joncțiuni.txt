@@ -1,0 +1,201 @@
+use firma
+SELECT A.Nume, A.Prenume, F.Salariu
+FROM Angajati A, Departamente D, Functii F
+WHERE (A.IdDept = D.IdDept AND A.IdFunctie = F.IdFunctie)
+AND D.Denumire = 'PRODUCTIE'
+ORDER BY F.salariu DESC, A.nume, A.prenume
+
+select * from ANGAJATI
+
+SELECT A.Nume, A.Prenume, F.Salariu
+FROM Angajati A
+JOIN Departamente D ON A.IdDept = D.IdDept
+JOIN Functii F ON A.IdFunctie = F.IdFunctie
+WHERE D.Denumire = 'PRODUCTIE'
+ORDER BY F.salariu DESC, A.nume, A.prenume
+
+SELECT A.Nume, A.Prenume, D.Denumire Departament
+FROM Angajati A JOIN Departamente D
+ON (A.IdDept = D.IdDept)
+WHERE (D.Denumire = 'PROIECTARE')
+ORDER BY Nume, Prenume
+
+SELECT F.Denumire, AVG(F.Salariu) Sal_med
+FROM Angajati A JOIN Functii F
+ON (A.IdFunctie = F.IdFunctie)
+GROUP BY F.Denumire
+
+SELECT F.Denumire AS Functia, Sum(F.Salariu) Total_sal
+FROM Angajati A JOIN Functii F
+ON (A.IdFunctie = F.IdFunctie)
+GROUP BY F.Denumire
+ORDER BY Sum(F.Salariu) DESC
+
+
+
+
+select A.Nume, A.Prenume,D.Denumire Departament
+From ANGAJATI A
+Join DEPARTAMENTE D
+on A.IdDept=D.IdDept
+where D.Denumire='Vanzari'
+And nume like '%N1%'
+
+
+select A.Nume, A.Prenume,D.Denumire Departament,F.Salariu
+from Angajati A 
+Join DEPARTAMENTE D on A.IdDept=D.IdDept
+JOIN Functii F ON A.IdFunctie = F.IdFunctie
+where D.Denumire='Vanzari'
+ORDER BY F.salariu DESC, A.nume, A.prenume
+
+--Câți angajați sunt într-un anumit departament dat prin denumire ?
+
+select D.Denumire Departament,
+count (A.IdAngajat) nr_Ang
+from Angajati A Join departamente D
+On A.IdDept=D.IdDept
+where D.Denumire='Proiectare'
+Group by D.Denumire
+
+
+--Care este suma salariilor angajaților din companie ?
+
+select sum(F.Salariu) Suma
+From ANGAJATI A Join FUNCTII F
+On A.IdFunctie=F.IdFunctie
+
+
+
+--1.Care sunt angajații a căror funcții conține secvența de caractere ‘ngi’ ?
+
+select A.Nume, A.prenume, F.Denumire
+From ANGAJATI A join FUNCTII F
+On A.IdAngajat=F.IdFunctie
+where denumire like '%ngi%'
+
+
+
+--2.Care sunt salariile din departamentul ‘PRODUCTIE’ și câți angajați au aceste salarii ?
+
+select D.Denumire As Dept, F.Salariu, count (F.Salariu) Salariu
+from ANGAJATI A join DEPARTAMENTE D on A.IdDept=D.IdDept
+JOIN Functii F ON A.IdFunctie = F.IdFunctie
+where D.Denumire='Productie'
+Group by f.Salariu, D.Denumire
+
+
+--3.Care sunt cele mai mici/mari salarii din departamente ?
+
+select D.Denumire As Departament, min(Salariu) as SalMin, max(Salariu) as SalMax
+from ANGAJATI A join DEPARTAMENTE D on A.IdDept=D.IdDept
+JOIN Functii F ON A.IdFunctie = F.IdFunctie
+Group by D.Denumire
+
+
+
+select * from ANGAJATI
+
+
+select * from FUNCTII
+select * from DEPARTAMENTE
+
+--4.Care sunt produsele vândute într-o anumită perioadă de timp ?
+
+select P.Denumire As Produse
+From Vanzari V join PRODUSE P on V.IDProdus=P.IdProdus
+where V.DataVanz between '2018-01-04' and '2020-07-01'
+Group by P.Denumire
+
+--5.Care sunt clienții ce au cumpărat produse prin intermediul unui vânzător anume ?
+
+select A.Nume, A.Prenume , V.IDClient as Client
+from Angajati A Join VANZARI V on A.IdAngajat=V.IDVanzator
+Join Clienti C on V.IDClient=C.IdClient
+where A.Nume='N12' and A.Prenume='P13'
+Group by A.nume, A.prenume,V.IDClient
+
+select * from ANGAJATI
+select * from PRODUSE
+select * from VANZARI
+select * from CLIENTI
+
+--6.Care sunt clienții ce au cumpărat două produse ?
+
+select C.Denumire as Client
+from CLIENTI C join VANZARI V  on C.IDClient=V.IDClient
+where V.NrProduse=2
+Group by C.Denumire
+
+--7.Care sunt clienții ce au cumpărat cel puțin două produse ?
+
+select C.Denumire as Client
+from CLIENTI C join VANZARI V  on C.IDClient=V.IDClient
+where V.NrProduse>=2
+Group by C.Denumire
+
+select * from PRODUSE
+select * from VANZARI
+
+--8.Câți clienți au cumpărat (la o singură cumpărare) produse în valoare mai mare decât o sumă dată (de ex. 200) ?
+
+Select count(C.IdClient) as nrClienti
+From CLIENTI C join VANZARI V ON C.IdClient=V.IdClient 
+where sum( V.NrProduse * V.PretVanz)>200 
+group by C.IdClient
+
+
+--9.Care sunt clienții din CLUJ care au cumpărat produse în valoare mai mare de 200 ?
+
+select C.Denumire as Client, sum(PretVanz*NrProduse) as Valoare
+from CLIENTI C join VANZARI V  on C.IDClient=V.IDClient 
+where C.Adresa_jud='Cluj' 
+Group by C.Denumire
+having sum(PretVanz*NrProduse)>200 
+
+select * from CLIENTI
+select * from VANZARI
+
+--10.Care sunt mediile vânzărilor pe o anumită perioadă de timp, grupate pe produse ?
+select P.Denumire as Produse, avg(V.NrProduse*V.PretVanz) as Medie_vanzari
+from PRODUSE P join VANZARI V on P.IdProdus=V.IDProdus
+where V.DataVanz between '2018-01-04' and '2020-07-01'
+Group by P.Denumire
+
+--11.Care este numărul total de produse vândute pe o anumită perioadă de timp ?
+
+SELECT SUM(V.NrProduse) NrProd
+FROM VANZARI V join PRODUSE P ON V.IDProdus=P.IdProdus 
+where V.DataVanz between '2018-01-04' and '2020-07-01'
+
+--12.Care este numărul de total de produse vândute de un vânzător precizat prin nume ?
+
+SELECT A.Nume,SUM(V.NrProduse) as NrProd
+FROM ANGAJATI A JOIN VANZARI V ON A.IdAngajat=V.IdVanzator 
+WHERE A.Nume='N13'
+Group by A.nume
+
+
+--13. Care sunt clienții ce au cumpărat produse în valoare mai mare decât media vânzărilor din luna august 2016 ?
+
+select C.Denumire as Clienti
+From CLIENTI C join VANZARI V on C.IdClient=V.IDClient
+where sum(V.NrProduse) > avg(V.NrProduse*V.PretVanz) and V.DataVanz between '2016-08-01' and '2016-08-31' 
+Group by C.Denumire
+
+
+
+--14. Care sunt produsele care s-au vândut la mai mult de un client ?
+
+SELECT DISTINCT V.IDProdus, V.IDClient
+FROM VANZARI V
+INNER JOIN VANZARI V1 ON (V.IDProdus = V1.IDProdus) AND (V.IDClient<> V1.IdClient)
+ORDER BY V.IDProdus
+
+select * from PRODUSE
+select * from VANZARI
+--15.Care sunt vânzările valorice realizate de fiecare vânzător, grupate pe produse și clienți, cu subtotaluri ?
+
+select P.Denumire as Produse, V.IDClient, sum(V.PretVanz*V.NrProduse) as Vanzari
+From VANZARI V join PRODUSE P on V.IDProdus=P.IdProdus
+Group by P.Denumire, V.IDClient

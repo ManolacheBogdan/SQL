@@ -1,0 +1,62 @@
+use firma
+
+alter table departamente add test int not null default 100
+
+alter table departamente drop constraint df_departamen_test_3B75D760
+
+alter table departamente alter column test smallint
+
+alter table departamente drop column test
+
+ALTER TABLE departamente alter column denumire varchar(50);
+
+update departamente set denumire=concat(denumire, '!!!')
+
+alter table departamente add constraint CK_test check(test<200)
+update departamente set test=300 where IdDept=3
+
+alter table departamente nocheck constraint CK_test
+
+delete from departamente where denumire = 'vanzari!!!'
+
+
+
+alter table departamente add xxx char(6) 
+
+--populare xxx
+
+alter table departamente add constraint UQ_test unique (xxx)
+
+select getdate() as data_de_azi, datediff(day, '2022-01-01',getdate()) as cate_zile
+
+--Să se șteargă toți clienții dintr-un anumit judet.
+
+delete from clienti where Adresa_jud='Cluj'
+
+select * from clienti
+
+--ALTER TABLE vanzari alter column dataVanz date
+--Să se șteargă toate vânzările mai vechi de 1 an.
+
+delete from vanzari where datediff(day, datavanz, getdate())>365
+select * from vanzari 
+
+--Să se șteargă angajații din departamentul PROIECTARE, angajați dupa 01.01.2018 (se folosește funcția DATEDIFF).
+
+delete from ANGAJATI where IdDept=1 and DATEDIFF(year, '2018-01-01', DataAngajarii)>DATEDIFF(year, getdate(), '2018-01-01')
+
+select * from ANGAJATI
+
+--Să se transfere toți angajații cu vechime mai mare de 5 ani, din departamentul PRODUCTIE în departamentul VANZARI.
+
+update ANGAJATI set IdDept=4 where IdDept=2 and  datediff(year, DataAngajarii, getDate())>5
+
+--Să se adauge secvența ’-v2’ (se folosește funcția CONCAT) la toate denumirile de produse cu valoarea cheii primare numere impare.
+
+update PRODUSE set denumire=concat(denumire, '-v2') where IdProdus%2=1
+ select * from produse
+ 
+ --Să se modifice prețul de vânzare (creștere cu 10%) la toate produsele din categoria ADAPTOARE vândute în după o anumită dată.
+
+ update  VANZARI set PretVanz=1.1*PretVanz where IDProdus in (7,8,9) and datediff(year,'12.02.2020', datavanz)<0
+ select * from VANZARI

@@ -1,0 +1,191 @@
+use Firma
+
+create function dbo.verificareParitate(@val_test int)
+returns bit 
+as 
+begin 
+   declare @rez bit;
+   if @val_test % 2 = 1
+   begin
+      set @rez=0;
+   end
+   else
+      set @rez=1;
+
+   return(@rez);
+end
+
+print dbo.verificareParitate(100)
+
+
+--salariu mediu pt angajatii dintr-un anumit departament
+
+create function dbo.salariuM(@departament varchar(30))
+returns int
+as
+begin
+   declare @rez int;
+
+select @rez=AVG(F.Salariu)
+from ANGAJATI  A
+join FUNCTII F on A.IdFunctie=F.IdFunctie
+join DEPARTAMENTE D on A.IdDept=D.IdDept
+where D.Denumire=@departament
+    
+	return @rez;
+end
+
+print dbo.salariuM('Managament')
+
+
+
+--Scrieți și testați o funcție ce permite validarea unui nou câmp CNP scurt (din tabela Angajati), avand următoarea structură: G AA LL ZZ.
+
+
+
+
+--angajatii care ocupa o anumita functie si departamentele in care lucreaza
+alter function dbo.angajatiListati(@functie varChar(30))
+returns table
+as
+
+return
+
+
+select A.Nume, A.Prenume, D.Denumire
+from ANGAJATI  A
+join FUNCTII F on A.IdFunctie=F.IdFunctie
+join DEPARTAMENTE D on A.IdDept=D.IdDept
+where F.Denumire like '%'+@functie+'%'
+
+select * from dbo.angajatiListati('ing')
+
+
+--1.Scrieți și testați o funcție care returnează angajații a căror funcții conține o secvență de caractere primită ca parametru ?
+
+alter function dbo.angajati(@functie varChar(30))
+returns table
+as
+return
+
+select A.Nume, A.Prenume, f.Denumire
+from ANGAJATI A
+join FUNCTII F on A.IdFunctie=F.IdFunctie
+where F.Denumire like '%'+@functie+'%'
+
+select * from dbo.angajati('pro')
+
+
+--2.Scrieți și testați o funcție care returnează salariile dintr-un departament primit ca parametru? Câți angajați beneficiază de fiecare salariu?
+
+create function dbo.Salarii(@dep varchar(30))
+returns table
+as 
+
+return
+
+select f.salariu, count(A.IdAngajat) as Nr_angajati
+from ANGAJATI A
+join FUNCTII F on A.IdFunctie=f.IdFunctie
+where F.Denumire like '%'+@dep+'%'
+group by f.Salariu
+
+select * from dbo.Salarii('Inginer')
+
+select * from DEPARTAMENTE
+select * from FUNCTII
+select * from ANGAJATI
+
+--3.Scrieți și testați o funcție care returnează salariul minim și maxim dintr-un departament primit ca parametru?
+create function dbo.SalariuMinMax(@dep1 varchar(30))
+returns table
+as 
+
+return
+select min(F.salariu) as SalMin, max(F.Salariu) as SalMax, D.Denumire as Departament
+from ANGAJATI A
+join FUNCTII F on A.IdFunctie=f.IdFunctie
+join DEPARTAMENTE D on A.IdDept=D.IdDept
+where D.Denumire like '%'+@dep1+'%'
+group by D.Denumire
+
+select * from dbo.SalariuMinMax('Proiectare')
+
+
+
+
+--4.Scrieți și testați o funcție care returnează produsele vândute într-o anumită perioadă de timp? Limitele perioadei de timp sunt trimise ca parametri către funcție.
+create function dbo.period_of_time(@start_date date, @final_date date)
+returns table
+as 
+
+return
+select P.Denumire As Produse
+From Vanzari V join PRODUSE P on V.IDProdus=P.IdProdus
+where V.DataVanz between @start_date and +@final_date
+Group by P.Denumire
+
+select * from dbo.period_of_time('2018-01-04', '2020-07-01')
+
+--5.Scrieți și testați o funcție care returnează suma totală încasată de un vânzător al cărui nume este trimis ca parametru. Scrieți si testați o funcție care se bazează pe prima 
+--și care verifică dacă suma depășește un anumit prag minim trimis ca parametru. Afișați angajații care au vândut produse în valoare mai mare decât 100 RON.
+
+select * from VANZARI
+select * from ANGAJATI
+create function dbo.total_sum(@name varchar(30))
+returns table
+as 
+return
+select sum(V.NrProduse*V.PretVanz)as Suma_incasata
+from ANGAJATI A join VANZARI V on A.IdAngajat=V.IDVanzator
+where A.Nume like '%'+@name+'%'
+
+
+select * from dbo.total_sum('N6')
+
+create function dbo.verificare(@prag int)
+returns table
+as 
+return
+select A.Nume, sum(V.NrProduse*V.PretVanz) as Suma
+from ANGAJATI A join VANZARI V on A.IdAngajat=V.IDVanzator
+group by A.Nume
+having sum(V.NrProduse*V.PretVanz)>@prag
+
+select * from dbo.verificare(100)
+
+
+
+--6.Scrieți și testați o funcție care returnează cele mai vândute N produse, într-o anumită perioadă de timp. Valoarea lui N și limitele perioadei de timp sunt trimise
+--ca parametri către funcție.
+
+
+create function dbo.top_sales(@N int, @start_date date, @final_date date)
+returns table
+as 
+return 
+select top (@N) P.Denumire, sum(NrProduse)as Nr_Produse
+from PRODUSE P join VANZARI V on p.IdProdus=V.IDProdus
+where V.DataVanz between @start_date and @final_date
+Group by P.Denumire
+
+
+select * from dbo.top_sales(3,'2018-01-04', '2020-07-01')
+
+
+select * from CLIENTI
+select * from VANZARI
+
+--7.Scrieți și testați o funcție care returnează clienții ordonați descrescător după sumele cheltuite, într-o anumită perioadă de timp ale cărei limite sunt trimise ca parametri.
+
+create function dbo.sum_spend(@start_data date, @final_data date)
+returns table
+as
+return
+select top(20) C.Denumire, sum(V.NrProduse*V.PretVanz) as Suma_cheltuita
+from CLIENTI C join VANZARI V on C.IdClient=V.IDClient
+where V.DataVanz between @start_data and @final_data
+Group by C.Denumire
+order by suma_cheltuita desc
+
+select * from dbo.sum_spend('2018-01-04', '2020-07-01')

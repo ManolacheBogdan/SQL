@@ -1,0 +1,125 @@
+1. Creați în același mod și celelalte tabele din baza de date FIRMA, folosind tipuri de date cât mai adecvate 
+dar și constrângeri de coloană (NOT NULL, DEFAULT, CHECK).
+2. Creați în același mod și celelalte constrângeri de chei străine din baza de date FIRMA.
+3. Populați restul tabelelor din baza de date FIRMA cu câteva înregistrări: 3 departamente, 3 funcții, minim 2 
+angajați în fiecare departament (avand funcții diferite), 2 categorii de produse, minim 3 produse în fiecare 
+categorie, minim 3 clienți, minim 10 vânzări (2 vânzări la același client; 2 vânzări pe același produs).
+4. Se verifică rezultatele folosind facilitățile aplicației de administrare SSMS dar și comanda SELECT * FROM Nume_Tabela.
+5. Se salvează comenzile în fișiere script (extensia sql).
+
+
+use Firma 
+CREATE TABLE DEPARTAMENTE (
+IdDept int PRIMARY KEY IDENTITY,
+Denumire varchar(20) NOT NULL
+)
+
+CREATE TABLE FUNCTII (
+IdFunctie int PRIMARY KEY IDENTITY,
+Denumire varchar(20) NOT NULL,
+Salariu decimal
+)
+
+CREATE TABLE ANGAJATI (
+IdAngajat int PRIMARY KEY IDENTITY,
+Nume varchar(20) NOT NULL,
+Prenume varchar(20) NOT NULL,
+Marca int NOT NULL UNIQUE,
+DataNasterii date,
+DataAngajarii date,
+Adresa_jud varchar(20),
+IdFunctie int NOT NULL,
+IdDept int NOT NULL
+)
+
+ALTER TABLE ANGAJATI
+ADD CONSTRAINT FK_ANGAJATI_FUNCTII FOREIGN KEY (IdFunctie)
+REFERENCES FUNCTII(IdFunctie)
+
+ALTER TABLE ANGAJATI
+ADD CONSTRAINT FK_ANGAJATI_DEPT FOREIGN KEY (IdDept)
+REFERENCES DEPARTAMENTE(IdDept)
+
+INSERT INTO Departamente (Denumire) VALUES ('MANAGEMENT')
+INSERT INTO Departamente (Denumire) VALUES ('VANZARI')
+
+
+select * from angajati
+
+INSERT INTO Functii (Denumire, Salariu) VALUES ('MANAGER', 5000)
+INSERT INTO Functii (salariu, Denumire) VALUES (4000, 'INGINER')
+
+INSERT INTO ANGAJATI(Nume, Prenume, Marca, DataNasterii, DataAngajarii,
+Adresa_jud, IdFunctie, IdDept)
+VALUES ('Dimitrie', 'Cantemir', 1, '01/01/1958', '12/31/2002', 'Bucuresti', 1, 1);
+
+INSERT INTO ANGAJATI(Nume, Prenume, Marca, DataNasterii, DataAngajarii,
+Adresa_jud, IdFunctie, IdDept)
+VALUES ('Tepes', 'Vlad', 2, '1430-09-03', '2022-10-26', 'Bucuresti', 1, 1);
+
+
+CREATE TABLE vanzari (
+IdVanzare int PRIMARY KEY IDENTITY,
+IdProdus int NOT NULL,
+IdClient int NOT NULL,
+IdVanzator int NOT NULL,
+DataVanz date,
+NrProduse int NOT NULL,
+PretVanz int NOT NULL
+)
+
+INSERT INTO vanzari(IdProdus,IdClient,IdVanzator,DataVanz,NrPRoduse,PretVanz) VALUES (1,1,5,'2022-03-06',4,47)
+INSERT INTO vanzari(IdProdus,IdClient,IdVanzator,DataVanz,NrPRoduse,PretVanz) VALUES (2,2,5,'2022-02-07',2,65)
+INSERT INTO vanzari(IdProdus,IdClient,IdVanzator,DataVanz,NrPRoduse,PretVanz) VALUES (3,3,3,'2022-06-09',44,99)
+INSERT INTO vanzari(IdProdus,IdClient,IdVanzator,DataVanz,NrPRoduse,PretVanz) VALUES (3,4,3,'2022-06-09',44,99)
+CREATE TABLE clienti(
+IdClient  int PRIMARY KEY IDENTITY,
+Denumire varchar(20) NOT NULL,
+Tip_Cl varchar(10) NOT NULL,
+Adresa_jud varchar(20)
+)
+
+INSERT INTO clienti(Denumire, Tip_Cl, Adresa_jud) VALUES ('Mirel', 'Fidel', 'Cluj')
+INSERT INTO clienti(Denumire, Tip_Cl, Adresa_jud) VALUES ('Cristi', 'VIP', 'Iasi')
+
+CREATE TABLE categorii_prod(
+IdCateg int PRIMARY KEY IDENTITY,
+Denumire varchar(20) 
+)
+
+INSERT INTO categorii_prod(Denumire) VALUES('LACTATE')
+INSERT INTO categorii_prod(Denumire) VALUES('VEGETALE')
+INSERT INTO categorii_prod(Denumire) VALUES('GRASIMI')
+
+
+
+CREATE TABLE produse(
+IdProdus int PRIMARY KEY IDENTITY,
+Denumire varchar(20),
+IdCateg int NOT NULL
+)
+
+INSERT INTO produse(Denumire,IdCateg) VALUES ('Lapte', 1)
+INSERT INTO produse(Denumire,IdCateg) VALUES ('Carne', 2)
+INSERT INTO produse(Denumire,IdCateg) VALUES ('Miere', 3)
+
+ALTER TABLE VANZARI
+ADD CONSTRAINT FK_VANZARI_PRODUSE FOREIGN KEY (IdProdus)
+REFERENCES PRODUSE(IdProdus)
+
+ALTER TABLE VANZARI
+ADD CONSTRAINT FK_VANZARI_CLIENTI FOREIGN KEY (IdClient)
+REFERENCES CLIENTI(IdClient)
+
+
+ALTER TABLE VANZARI
+ADD CONSTRAINT FK_VANZARI_ANGAJATI FOREIGN KEY (IdVanzator)
+REFERENCES ANGAJATI(IdAngajat)
+
+ALTER TABLE PRODUSE
+ADD CONSTRAINT FK_PRODUSE_CATGORII_PROD FOREIGN KEY (IdCateg)
+REFERENCES CATEGORII_PROD(IdCateg)
+
+select * from categorii_prod
+select * from clienti
+select * from vanzari
